@@ -24,7 +24,8 @@
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
             z-index: 1;
             border-radius: 0.5rem;
-            margin: 1rem;
+            margin: 1rem 1rem 0% 1rem;
+
         }
 
         .search-bar {
@@ -86,6 +87,25 @@
             margin-right: 0.2rem;
         }
 
+        .reload-button {
+            background-color: #4a5568;
+            border: none;
+            padding: 0.2rem 0.5rem;
+            font-size: 0.8rem;
+            color: #e5e7eb;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            margin-left: 0.5rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .reload-button:hover {
+            background-color: #2c5282;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
         .error {
             color: #ff0000;
             font-size: 0.8rem;
@@ -127,6 +147,7 @@
             <button class="replace-button" id="replace-button">
                 <img src="https://img.icons8.com/ios-filled/20/ffffff/ok.png" alt="OK Icon" />
             </button>
+            <button class="reload-button" id="reload-button">Reload</button>
         </div>
         <div class="error" id="error"></div>
     </div>
@@ -142,6 +163,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const inputField = document.getElementById('all-input');
         const replaceButton = document.getElementById('replace-button');
+        const reloadButton = document.getElementById('reload-button');
         const conversionField = document.getElementById('conversion');
         const errorField = document.getElementById('error');
         inputField.value = urlParams.get('all') || '';
@@ -153,10 +175,16 @@
         }, 0);
 
         inputField.addEventListener('input', () => {
-            const newUrl = new URL(window.location.href);
-            newUrl.searchParams.set('all', inputField.value);
-            window.location.href = newUrl.href;
             updateConversion();
+        });
+
+        inputField.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                const newUrl = new URL(window.location.href);
+                newUrl.searchParams.set('all', inputField.value);
+                window.location.href = newUrl.href;
+                updateUrls();
+            }
         });
 
         replaceButton.addEventListener('click', () => {
@@ -171,15 +199,23 @@
                 const newUrl = new URL(window.location.href);
                 newUrl.searchParams.set('all', hiragana);
                 window.location.href = newUrl.href;
+                updateUrls();
             } catch (error) {
                 errorField.textContent = 'Error: ' + error.message;
             }
         });
 
+        reloadButton.addEventListener('click', () => {
+            const newUrl = new URL(window.location.href);
+            newUrl.searchParams.set('all', inputField.value);
+            window.location.href = newUrl.href;
+            updateUrls();
+        });
+
         function updateUrls() {
             const urls = [
-                `https://jisho.hlorenzi.com/${'search/' + urlParams.get('all') || urlParams.get('lorenzi') || ''}`,
-                `https://jisho.org/search/${urlParams.get('all') || urlParams.get('jisho')}`,
+                `https://jisho.hlorenzi.com/${'search/' + inputField.value || urlParams.get('lorenzi') || ''}`,
+                `https://jisho.org/search/${inputField.value || urlParams.get('jisho')}`,
             ];
 
             const iframe1 = document.getElementById('iframe1');
